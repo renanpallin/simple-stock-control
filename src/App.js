@@ -18,9 +18,6 @@ export default class App extends React.Component {
 
 		this.dao = new ProductDAO();
 
-		/* @see  this.updateProductInDatabase */
-		this.pendentCallbacks = [];
-
 		this.changeSearchFilter = this.changeSearchFilter.bind(this);
 		this.changeStockOnlyFilter = this.changeStockOnlyFilter.bind(this);
 		this.handleBuy = this.handleBuy.bind(this);
@@ -94,12 +91,14 @@ export default class App extends React.Component {
 	 */
 	updateProductInDatabase(product, callback) {
 		let key = 'timeoutUpdateId-' + product.id;
-		let callbacksKey = 'pendentCallbacks' + product.id;
-		
-		if(!this[callbacksKey])
-			this[callbacksKey] = [];
+		let pendentCallbacksKey = 'pendentCallbacks-productId' + product.id;
 
-		this.pendentCallbacks.push(callback);
+		// console.log("Registrando callback em", pendentCallbacksKey);
+		
+		if(!this[pendentCallbacksKey])
+			this[pendentCallbacksKey] = [];
+
+		this[pendentCallbacksKey].push(callback);
 
 		/* Debounce Pattern */
 		clearTimeout(this[key]);
@@ -109,7 +108,15 @@ export default class App extends React.Component {
 
 			console.log("Enviando dados para servidor");
 			this.dao.updateProduct(product, response => {
-				this.pendentCallbacks.forEach(c => c(response));
+				console.debug('-----------')
+				console.debug('executando fila de', pendentCallbacksKey)
+				this[pendentCallbacksKey].forEach(c => {
+					console.debug('executando', c);
+					c(response);
+					console.debug('-----------')
+				});
+				/* Limpa fila de callbacks */
+				this[pendentCallbacksKey] = [];
 			});
 		}, 3000);
 	}
@@ -152,7 +159,10 @@ export default class App extends React.Component {
 				return p;
 			})
 			return prevState.products.sort(this.sortByCategory);
-		},() =>{
+		},() => {
+			if (!isAValidUpate)
+				return callback && callback(isAValidUpate);
+
 			let updatedProduct = this.state.products.filter(e => e.id == update.itemId)[0];
 			this.updateProductInDatabase(updatedProduct, response => {
 				// console.log('response from server:', response);
@@ -164,7 +174,12 @@ export default class App extends React.Component {
 		// }, x => console.log(this.state.products.filter(e => e.id == update.itemId)));
 	}
 
-	/* Pega o valor do lastValidValue e coloca no value */
+	/* Pega o valor do lastValidValue e coloca no value 
+		Bug/comportamento: Se o usuário digitar um valor inválido
+		no campo name (que deve ser único), deixar lá e tentar
+		atualizar outro campo do mesmo produto, este campo ficará
+		com o lastValidValue, no caso, o name.
+	*/
 	adminRevertUpdate(update, callback){
 		this.setState(prevState => {
 			prevState.products.map(p => {
