@@ -83,12 +83,15 @@ export default class App extends React.Component {
 			return 0;
 	}
 
-	updateProductInDatabase(product) {
+	updateProductInDatabase(product, callback) {
 		clearTimeout(this['timeoutUpdateId-' + product.id]);
 		this['timeoutUpdateId-' + product.id] = setTimeout(() => {
+			if (!this.isNameUnique(product))
+				return alert("O produto não pode ser salvo devido a dados inválidos");
+
 			console.log("Enviando dados para servidor");
-			this.dao.updateProduct(product, console.info);
-		}, 3000);
+			this.dao.updateProduct(product, callback);
+		}, 1000);
 	}
 
 	/*	
@@ -131,11 +134,12 @@ export default class App extends React.Component {
 			return prevState.products.sort(this.sortByCategory);
 		},() =>{
 			let updatedProduct = this.state.products.filter(e => e.id == update.itemId)[0];
-			this.updateProductInDatabase(updatedProduct);
+			this.updateProductInDatabase(updatedProduct, response => {
+				callback && callback(response.sucess);
+			});
 		});
 		// }, () => console.log("[Item in state]", this.state.products.filter(e => e.id == update.itemId)));
 
-		callback && callback(isAValidUpate);
 		// }, x => console.log(this.state.products.filter(e => e.id == update.itemId)));
 	}
 

@@ -31,13 +31,15 @@ export default class ProductDAO {
 
 	updateProduct(product, callback){
 		console.log(product);
-
 		console.log('url', this.URL_REST_PRODUCTS + product.id);
 		this.httpCall({
 			method: "PUT",
 			url: this.URL_REST_PRODUCTS + product.id,
 			data: product
-		}, callback);
+		}, response => {
+			console.log("estou no ProductDao", response);
+			callback(response);
+		});
 	}
 	
 	insertProduct(product, callback){

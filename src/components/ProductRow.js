@@ -14,7 +14,7 @@ export default class ProductRow extends React.Component {
 	}
 
 	handleAdminChange(e){
-		// e.persist();
+		e.persist();
 		e.target.style.backgroundColor = "yellow";
 		let update = {
 			itemId: e.target.dataset.itemId,
@@ -23,6 +23,7 @@ export default class ProductRow extends React.Component {
 		}
 
 		this.props.changeProduct(update, sucess => {
+			console.log("Viou mudar o style agora hem, fica vendo", sucess)
 			let {style} = e.target;
 			if (!sucess)
 				style.backgroundColor = "red";

@@ -39,8 +39,11 @@ app.get('/api/product', (req, res) => {
 app.put('/api/product/:id', (req, res) => {
 	var id = parseInt(req.params.id);
 	db.collection(TABLE_NAME).update({id}, req.body)
-	 .then(found => console.log('da base:> ' + found))
-	 .catch(err => console.error(err));
+	 .then(dbResponse => {
+	 	res.status({sucess: !!dbResponse.ok})
+	 }).catch(err => {
+
+	 });
 })
 
 app.post('/api/product', (req, res) => {
