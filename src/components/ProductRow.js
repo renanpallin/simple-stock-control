@@ -6,6 +6,7 @@ export default class ProductRow extends React.Component {
 
 		this.handleClick = this.handleClick.bind(this);
 		this.handleAdminChange = this.handleAdminChange.bind(this);
+		this.handleAdminOnBlur = this.handleAdminOnBlur.bind(this);
 	}
 
 	handleClick(e){
@@ -13,9 +14,9 @@ export default class ProductRow extends React.Component {
 	}
 
 	handleAdminChange(e){
-		e.persist();
+		// e.persist();
 		e.target.style.backgroundColor = "yellow";
-		var update = {
+		let update = {
 			itemId: e.target.dataset.itemId,
 			field: e.target.dataset.field,
 			value: e.target.value
@@ -28,8 +29,18 @@ export default class ProductRow extends React.Component {
 			else
 				style.backgroundColor = "greenyellow";
 		});
+	}
 
+	handleAdminOnBlur(e){
+		let update = {
+			itemId: e.target.dataset.itemId,
+			field: e.target.dataset.field,
+			value: e.target.value	
+		}
 
+		this.props.adminRevertUpdate(update, sucess => {
+			console.log('callback revert', sucess);
+		})
 	}
 
 	renderButton(key){
@@ -67,7 +78,8 @@ export default class ProductRow extends React.Component {
 										data-item-id={this.props.product.id}
 										data-field={s.productField}
 										value={productFieldValue}
-										onChange={this.handleAdminChange} />
+										onChange={this.handleAdminChange}
+										onBlur={this.handleAdminOnBlur} />
 				}
 
 			}

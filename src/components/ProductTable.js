@@ -50,8 +50,9 @@ export default class ProductTable extends React.Component {
 						changeProduct={this.handleProductChange}
 						scheme={this.props.scheme}
 						handleClick={this.handleRowClickBuy}
-						product={p} 
-						key={p.id}/>); //Tinha colocado p.name, quando atualiva o nome, ele trocava o input...
+						product={p}
+						adminRevertUpdate={this.props.adminRevertUpdate} 
+						key={p.id} />); //Tinha colocado p.name, quando atualiva o nome, ele trocava o input...
 									//Nunca use algo que você pode atualizar
 		});
 

@@ -6,6 +6,11 @@ import ProductTable from './components/ProductTable';
 
 // import MockData from 'MockData';
 
+
+/**
+ * TODO: Tentar trocar os vários sorts pelo componentWillUpdate,
+ * sort aí e já eraa
+ */
 export default class App extends React.Component {
 	constructor(props){
 		super(props);
@@ -18,6 +23,7 @@ export default class App extends React.Component {
 		/* Admin */
 		this.adminChangeProductValue = this.adminChangeProductValue.bind(this);
 		this.addEmptyProduct = this.addEmptyProduct.bind(this);
+		this.adminRevertUpdate = this.adminRevertUpdate.bind(this);
 
 		this.state = {
 			products: [
@@ -52,7 +58,8 @@ export default class App extends React.Component {
 		else
 			return 0;
 	}
-	/*
+
+	/*	
 	{
 		itemId: e.target.dataset.itemId,
 		field: e.target.dataset.field,
@@ -60,27 +67,57 @@ export default class App extends React.Component {
 	}
 	 */
 	adminChangeProductValue(update, callback){
-		console.log(update);
+		// console.log('[update]', update);
 		
-		if(!this.isNameUnique({
-			id: update.id,
+		let isAValidUpate;
+		if(update.field == "name" && !this.isNameUnique({
+			id: update.itemId,
 			name: update.value
 		})){
-			// alert('O nome deve ser único!')
-			return callback(false);
+			isAValidUpate = false;
+		} else {
+			isAValidUpate = true;
 		}
 
 		this.setState(prevState => {
 			// console.log('prevState', prevState);
-			prevState.products.map((p, i) => {
-				if (p.id == update.itemId)
+			prevState.products.map(p => {
+				if (p.id == update.itemId){
+					if (!isAValidUpate){
+						p.lastValidValue = p[update.field];
+					} else {
+						/* Este if previne de atualizar um outro campo e tornar o nome
+						inválido válido, apagando o lastValidValue. Trabalha em conjunto
+						com o onFocusOut no input */
+						if (update.field == "name")
+							delete p.lastValidValue;
+					}
 					p[update.field] = update.value;
+				}
 				return p;
 			})
 			return prevState.products.sort(this.sortByCategory);
-		}), callback && callback(true);
-		// }, x => console.log(this.state.products.filter(e => e.id == update.itemId)));
+		});
+		// }, () => console.log("[Item in state]", this.state.products.filter(e => e.id == update.itemId)));
 
+		callback && callback(isAValidUpate);
+		// }, x => console.log(this.state.products.filter(e => e.id == update.itemId)));
+	}
+
+	/* Pega o valor do lastValidValue e coloca no value */
+	adminRevertUpdate(update, callback){
+		this.setState(prevState => {
+			prevState.products.map(p => {
+				if (p.id == update.itemId){
+					// console.log('comparando', p.lastValidValue, "com" ,p[update.field])
+					if(p.lastValidValue && p.lastValidValue != p[update.field]){
+						console.log("Valor inválido deixado, revertendo...", update);
+						p[update.field] = p.lastValidValue;
+					}
+				}
+				return p;
+			})
+		})
 	}
 
 	addEmptyProduct() {
@@ -102,7 +139,7 @@ export default class App extends React.Component {
 	 * @return {Boolean}         true se não existe nenhum com o nome ainda
 	 */
 	isNameUnique(product){
-		return !this.state.products.filter(p => p.name.toLowerCase() == product.name.toLowerCase() && p.id != product.id).length;
+		return !this.state.products.filter(p => p.name.toLowerCase().trim() == product.name.toLowerCase().trim() && p.id != product.id).length;
 	}
 
 	getNextProductId(){
@@ -227,7 +264,8 @@ export default class App extends React.Component {
 								handleBuy={this.handleBuy} 
 								/* Admin */
 					   			isAdmin={true}
-								addEmptyProduct={this.addEmptyProduct} />
+								addEmptyProduct={this.addEmptyProduct}
+								adminRevertUpdate={this.adminRevertUpdate} />
 					</Admin>
 				</div>
 			</div>
