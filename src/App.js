@@ -4,6 +4,7 @@ import Admin from './Admin';
 import SearchBlock from './components/SearchBlock';
 import ProductTable from './components/ProductTable';
 
+import ProductDAO from './ProductDAO';
 // import MockData from 'MockData';
 
 
@@ -14,6 +15,8 @@ import ProductTable from './components/ProductTable';
 export default class App extends React.Component {
 	constructor(props){
 		super(props);
+
+		this.dao = new ProductDAO();
 
 		this.changeSearchFilter = this.changeSearchFilter.bind(this);
 		this.changeStockOnlyFilter = this.changeStockOnlyFilter.bind(this);
@@ -26,25 +29,46 @@ export default class App extends React.Component {
 		this.adminRevertUpdate = this.adminRevertUpdate.bind(this);
 
 		this.state = {
-			products: [
-			  {id: 1,category: "Sporting Goods", price: "$49.99", quantity: 9, name: "Football"},
-			  {id: 2,category: "Sporting Goods", price: "$9.99", quantity: 9, name: "Baseball"},
-			  {id: 3,category: "Sporting Goods", price: "$29.99", quantity: 9, name: "Basketball"},
-			  {id: 4,category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
-			  {id: 5,category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
-			  {id: 6,category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
-			].sort(this.sortByCategory),
+			// products: [
+			//   {id: 1,category: "Sporting Goods", price: "$49.99", quantity: 9, name: "Football"},
+			//   {id: 2,category: "Sporting Goods", price: "$9.99", quantity: 9, name: "Baseball"},
+			//   {id: 3,category: "Sporting Goods", price: "$29.99", quantity: 9, name: "Basketball"},
+			//   {id: 4,category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
+			//   {id: 5,category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
+			//   {id: 6,category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
+			// ].sort(this.sortByCategory),
 			// products: new MockData().getData().sort((a, b) => {
 			// 	if (a.category > b.category)
-			// 		return 1;
+			// 		return 1
 			// 	else if (a.category < b.category)
 			// 		return -1;
 			// 	else
 			// 		return 0;
 			// }),
+			products: [],
 			filterSearch: "",
 			filterStockOnly: false
 		}
+	}
+
+	componentWillMount(){
+		// let products = [
+		// 	  {id: 1,category: "Sporting Goods", price: "$49.99", quantity: 9, name: "Football"},
+		// 	  {id: 2,category: "Sporting Goods", price: "$9.99", quantity: 9, name: "Baseball"},
+		// 	  {id: 3,category: "Sporting Goods", price: "$29.99", quantity: 9, name: "Basketball"},
+		// 	  {id: 4,category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
+		// 	  {id: 5,category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
+		// 	  {id: 6,category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
+		// 	];
+		// setTimeout(() => {
+		// 	this.setState({products});
+		// }, 3000)
+		this.dao.getAllProducts(products => {
+			console.log("Recebi a parada");
+			this.setState({
+				products
+			})
+		});
 	}
 
 	sortByCategory(a, b){
@@ -57,6 +81,11 @@ export default class App extends React.Component {
 			return -1;
 		else
 			return 0;
+	}
+
+
+	updateProductInDatabase(product) {
+		this.dao.updateProduct(product, console.info);
 	}
 
 	/*	
@@ -97,6 +126,9 @@ export default class App extends React.Component {
 				return p;
 			})
 			return prevState.products.sort(this.sortByCategory);
+		},() =>{
+			let updatedProduct = this.state.products.filter(e => e.id == update.itemId)[0];
+			this.updateProductInDatabase(updatedProduct);
 		});
 		// }, () => console.log("[Item in state]", this.state.products.filter(e => e.id == update.itemId)));
 
@@ -196,6 +228,7 @@ export default class App extends React.Component {
 						   	"Qnt"];
 
 
+		// console.log(this.state);
 		let products = this.state.products.filter(p => {
 			return	(
 				p.name.toLowerCase().includes(this.state.filterSearch.toLowerCase())
@@ -272,13 +305,3 @@ export default class App extends React.Component {
 		)
 	}
 }
-
-
-/*
-
-						   	<ProductTable 
-						   			isAdmin={true}
-									headers={adminHeaders}
-									products={products} 
-									handleBuy={this.handleBuy} />
- */
