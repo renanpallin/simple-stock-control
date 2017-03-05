@@ -25,7 +25,8 @@
     "dev": "webpack-dev-server --progress --colors --watch",
     "dev-hot": "webpack-dev-server --inline --hot",
     "dev-dashboard": "./node_modules/webpack-dashboard/bin/webpack-dashboard.js webpack-dev-server --progress --colors --watch",
-    "prepare-db": "node scripts/prepare_db.js"
+    "prepare-db": "node scripts/prepare_db.js",
+    "dev-server" : "nodemon app.js"
   },
   "repository": {
     "type": "git",

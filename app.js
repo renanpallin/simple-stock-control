@@ -44,6 +44,9 @@ app.put('/api/product/:id', (req, res) => {
 })
 
 app.post('/api/product', (req, res) => {
-	db.collectoin(TABLE_NAME).insertOne(req.body)
-	 .then(() => res.status(200));
+	db.collection(TABLE_NAME).insertOne(req.body)
+	 .then(() => res.send({
+	 	msg: "Produto vazio inserido na base",
+	 	sucess: true
+	 }));
 })

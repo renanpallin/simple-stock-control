@@ -83,9 +83,12 @@ export default class App extends React.Component {
 			return 0;
 	}
 
-
 	updateProductInDatabase(product) {
-		this.dao.updateProduct(product, console.info);
+		clearTimeout(this['timeoutUpdateId-' + product.id]);
+		this['timeoutUpdateId-' + product.id] = setTimeout(() => {
+			console.log("Enviando dados para servidor");
+			this.dao.updateProduct(product, console.info);
+		}, 3000);
 	}
 
 	/*	
@@ -162,7 +165,11 @@ export default class App extends React.Component {
 			prevState.products.push(product);
 
 			return prevState.products.sort(this.sortByCategory);
-		})
+		},() => {
+			this.dao.insertProduct(product, response => {
+				console.log(response);
+			})
+		})	
 	}
 
 	/**
@@ -205,8 +212,8 @@ export default class App extends React.Component {
 				}
 				return p;
 			})
-		})
-		// }, x => console.log(this.state.products.filter(p => p.id === itemId)))
+		// })
+		}, () => this.updateProductInDatabase(this.state.products.filter(p => p.id === itemId)[0]))
 	}
 
 	changeSearchFilter(filterSearch){

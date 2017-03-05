@@ -53,10 +53,11 @@ export default class ProductDAO {
 		xhr.open(options.method, options.url);
 		xhr.onreadystatechange = () => {
 			if (xhr.readyState != 4) return;
-			if (xhr.status != 200) return callback && callback({error: xhr.responseText});
+			if (xhr.status != 200) return callback && callback({error: "[" +  xhr.status + "] " + xhr.statusText});
 
 			let data;
 			try {
+				// TROCAR POR xhr.responseType = 'json';
 				data = JSON.parse(xhr.responseText);
 			} catch (e) {
 				data = {error: "deu merda aqui na requisição" + e};
