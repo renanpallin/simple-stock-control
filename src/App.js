@@ -1,9 +1,10 @@
 import React from 'react';
 
+import Admin from './Admin';
 import SearchBlock from './components/SearchBlock';
 import ProductTable from './components/ProductTable';
 
-import MockData from 'MockData';
+// import MockData from 'MockData';
 
 export default class App extends React.Component {
 	constructor(props){
@@ -11,15 +12,17 @@ export default class App extends React.Component {
 
 		this.changeSearchFilter = this.changeSearchFilter.bind(this);
 		this.changeStockOnlyFilter = this.changeStockOnlyFilter.bind(this);
+		this.handleBuy = this.handleBuy.bind(this);
+		this.adminUpdateProduct = this.adminUpdateProduct.bind(this);
 
 		this.state = {
 			products: [
-			  {category: "Sporting Goods", price: "$49.99", quantity: 4, name: "Football"},
-			  {category: "Sporting Goods", price: "$9.99", quantity: 2, name: "Baseball"},
-			  {category: "Sporting Goods", price: "$29.99", quantity: 9, name: "Basketball"},
-			  {category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
-			  {category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
-			  {category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
+			  {id: 1,category: "Sporting Goods", price: "$49.99", quantity: 9, name: "Football"},
+			  {id: 2,category: "Sporting Goods", price: "$9.99", quantity: 9, name: "Baseball"},
+			  {id: 3,category: "Sporting Goods", price: "$29.99", quantity: 9, name: "Basketball"},
+			  {id: 4,category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
+			  {id: 5,category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
+			  {id: 6,category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
 			].sort((a, b) => {
 				if (a.category > b.category)
 					return 1;
@@ -41,6 +44,24 @@ export default class App extends React.Component {
 		}
 	}
 
+	adminUpdateProduct(newProduct){
+		console.log(newProduct, 'será atualizado');
+	}
+
+	handleBuy(itemId){
+		this.setState(prevState => {
+			return prevState.products.map(p => {
+				if (p.id == itemId){
+					if (p.quantity > 0){
+						p.quantity -= 1;
+					}
+				}
+				return p;
+			})
+		})
+		// }, x => console.log(this.state.products.filter(p => p.id === itemId)))
+	}
+
 	changeSearchFilter(filterSearch){
 		this.setState({filterSearch});
 	}
@@ -50,6 +71,16 @@ export default class App extends React.Component {
 	}
 
 	render() {
+		let headers = ["Name", 
+					   "Price", 
+					   "Qnt",
+					   "Buy"];
+		let adminHeaders = ["Category",
+						   	"Name", 
+						   	"Price", 
+						   	"Qnt"];
+
+
 		let products = this.state.products.filter(p => {
 			return	(
 				p.name.includes(this.state.filterSearch)
@@ -64,6 +95,26 @@ export default class App extends React.Component {
 			)
 		});
 
+
+		let schemaArray = [
+			{header: "Name", "productField": "name"},
+			{header: "Price", "productField": "price"},
+			{header: "Price", "productField": "price"},
+			{header: "Price", "productField": "price"},
+			{header: "Quantity", "productField": "quantity"},
+			{header: "Buy", "productField": "buy"},
+			{header: "Buy", "productField": "buy"},
+			{header: "Buy", "productField": "buy"},
+			{header: "Buy", "productField": "buy"},
+		];
+
+		// let schemaAdminArray = [
+		// 	{header: "Id", "productField": "id"},
+		// 	{header: "Name", "productField": "name"},
+		// 	{header: "Price", "productField": "price"},
+		// 	{header: "Quantity", "productField": "quantity"}
+		// ];
+
 		return (
 			<div className="container">
 				<br/>
@@ -75,11 +126,30 @@ export default class App extends React.Component {
 									 stockOnly={this.state.filterStockOnly}
 									 changeStockOnlyFilter={this.changeStockOnlyFilter} />
 						<br/>
-						<ProductTable headers={["Name", "Price", "Qnt"]}
-									products={products} />
+						<ProductTable
+									schemaArray={schemaArray}
+									headers={headers}
+									products={products} 
+									handleBuy={this.handleBuy} />
 					</div>
+				</div>
+				<div className="row justify-content-md-center">
+					<Admin products={products}
+						   adminUpdateProduct={this.adminUpdateProduct}>
+
+					</Admin>
 				</div>
 			</div>
 		)
 	}
 }
+
+
+/*
+
+						   	<ProductTable 
+						   			isAdmin={true}
+									headers={adminHeaders}
+									products={products} 
+									handleBuy={this.handleBuy} />
+ */
