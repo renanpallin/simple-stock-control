@@ -30,14 +30,13 @@ export default class ProductDAO {
 	}
 
 	updateProduct(product, callback){
-		console.log(product);
-		console.log('url', this.URL_REST_PRODUCTS + product.id);
+		// console.log(product);
+		// console.log('url', this.URL_REST_PRODUCTS + product.id);
 		this.httpCall({
 			method: "PUT",
 			url: this.URL_REST_PRODUCTS + product.id,
 			data: product
 		}, response => {
-			console.log("estou no ProductDao", response);
 			callback(response);
 		});
 	}
@@ -53,7 +52,7 @@ export default class ProductDAO {
 	httpCall(options, callback){
 		let xhr = new XMLHttpRequest();
 		xhr.open(options.method, options.url);
-		xhr.onreadystatechange = () => {
+		xhr.onreadystatechange = function() {
 			if (xhr.readyState != 4) return;
 			if (xhr.status != 200) return callback && callback({error: "[" +  xhr.status + "] " + xhr.statusText});
 

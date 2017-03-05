@@ -40,9 +40,10 @@ app.put('/api/product/:id', (req, res) => {
 	var id = parseInt(req.params.id);
 	db.collection(TABLE_NAME).update({id}, req.body)
 	 .then(dbResponse => {
-	 	res.status({sucess: !!dbResponse.ok})
+	 	res.send({sucess: !!dbResponse.result.ok});
 	 }).catch(err => {
-
+	 	console.error('Merda aqui: ' + err);
+	 	res.send({sucess: false, error: err});
 	 });
 })
 

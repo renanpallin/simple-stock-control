@@ -23,12 +23,10 @@ export default class ProductRow extends React.Component {
 		}
 
 		this.props.changeProduct(update, sucess => {
-			console.log("Viou mudar o style agora hem, fica vendo", sucess)
-			let {style} = e.target;
 			if (!sucess)
-				style.backgroundColor = "red";
+				e.target.style.backgroundColor = "red";
 			else
-				style.backgroundColor = "greenyellow";
+				e.target.style.backgroundColor = "greenyellow";
 		});
 	}
 

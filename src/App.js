@@ -18,6 +18,9 @@ export default class App extends React.Component {
 
 		this.dao = new ProductDAO();
 
+		/* @see  this.updateProductInDatabase */
+		this.pendentCallbacks = [];
+
 		this.changeSearchFilter = this.changeSearchFilter.bind(this);
 		this.changeStockOnlyFilter = this.changeStockOnlyFilter.bind(this);
 		this.handleBuy = this.handleBuy.bind(this);
@@ -83,15 +86,32 @@ export default class App extends React.Component {
 			return 0;
 	}
 
+	/*
+		Problemas com debounce, como cancelo a requisição pendnete anterior,
+		o callback vai embora junto e nunca é chamado, então o input continua amarelinho.
+		Solução: Esta classe agora possui um pendentCallbacks, onde são registrados todos
+		os callbacks para 
+	 */
 	updateProductInDatabase(product, callback) {
-		clearTimeout(this['timeoutUpdateId-' + product.id]);
-		this['timeoutUpdateId-' + product.id] = setTimeout(() => {
+		let key = 'timeoutUpdateId-' + product.id;
+		let callbacksKey = 'pendentCallbacks' + product.id;
+		
+		if(!this[callbacksKey])
+			this[callbacksKey] = [];
+
+		this.pendentCallbacks.push(callback);
+
+		/* Debounce Pattern */
+		clearTimeout(this[key]);
+		this[key] = setTimeout(() => {
 			if (!this.isNameUnique(product))
 				return alert("O produto não pode ser salvo devido a dados inválidos");
 
 			console.log("Enviando dados para servidor");
-			this.dao.updateProduct(product, callback);
-		}, 1000);
+			this.dao.updateProduct(product, response => {
+				this.pendentCallbacks.forEach(c => c(response));
+			});
+		}, 3000);
 	}
 
 	/*	
@@ -135,6 +155,7 @@ export default class App extends React.Component {
 		},() =>{
 			let updatedProduct = this.state.products.filter(e => e.id == update.itemId)[0];
 			this.updateProductInDatabase(updatedProduct, response => {
+				// console.log('response from server:', response);
 				callback && callback(response.sucess);
 			});
 		});
