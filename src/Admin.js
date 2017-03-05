@@ -11,7 +11,7 @@ export default class Admin extends React.Component {
 	render(){
 		return (
 			<div className="admin">
-				<h1>Admin</h1>
+				<h1 style={this.props.barStyle}>Admin</h1>
 				{this.props.children}
 			</div>
 		)

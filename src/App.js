@@ -13,7 +13,11 @@ export default class App extends React.Component {
 		this.changeSearchFilter = this.changeSearchFilter.bind(this);
 		this.changeStockOnlyFilter = this.changeStockOnlyFilter.bind(this);
 		this.handleBuy = this.handleBuy.bind(this);
-		this.adminUpdateProduct = this.adminUpdateProduct.bind(this);
+		// this.adminUpdateProduct = this.adminUpdateProduct.bind(this);
+		
+		/* Admin */
+		this.adminChangeProductValue = this.adminChangeProductValue.bind(this);
+		this.addEmptyProduct = this.addEmptyProduct.bind(this);
 
 		this.state = {
 			products: [
@@ -23,14 +27,7 @@ export default class App extends React.Component {
 			  {id: 4,category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
 			  {id: 5,category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
 			  {id: 6,category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
-			].sort((a, b) => {
-				if (a.category > b.category)
-					return 1;
-				else if (a.category < b.category)
-					return -1;
-				else
-					return 0;
-			}),
+			].sort(this.sortByCategory),
 			// products: new MockData().getData().sort((a, b) => {
 			// 	if (a.category > b.category)
 			// 		return 1;
@@ -44,11 +41,92 @@ export default class App extends React.Component {
 		}
 	}
 
-	adminUpdateProduct(newProduct){
-		console.log(newProduct, 'será atualizado');
+	sortByCategory(a, b){
+		let catA = a.category.toLowerCase();
+		let catB = b.category.toLowerCase();
+
+		if (catA > catB)
+			return 1;
+		else if (catA < catB)
+			return -1;
+		else
+			return 0;
+	}
+	/*
+	{
+		itemId: e.target.dataset.itemId,
+		field: e.target.dataset.field,
+		value: e.target.value
+	}
+	 */
+	adminChangeProductValue(update, callback){
+		console.log(update);
+		
+		if(!this.isNameUnique({
+			id: update.id,
+			name: update.value
+		})){
+			// alert('O nome deve ser único!')
+			return callback(false);
+		}
+
+		this.setState(prevState => {
+			// console.log('prevState', prevState);
+			prevState.products.map((p, i) => {
+				if (p.id == update.itemId)
+					p[update.field] = update.value;
+				return p;
+			})
+			return prevState.products.sort(this.sortByCategory);
+		}), callback && callback(true);
+		// }, x => console.log(this.state.products.filter(e => e.id == update.itemId)));
+
+	}
+
+	addEmptyProduct() {
+		let product = this.getEmptyProduct();
+
+		if(!this.isNameUnique(product))
+			return alert('Preencha os dados do produto primeiro');
+
+		this.setState(prevState => {
+			prevState.products.push(product);
+
+			return prevState.products.sort(this.sortByCategory);
+		})
+	}
+
+	/**
+	 * Verifica se já existe algum produto com o nome
+	 * @param  {Product}  product 
+	 * @return {Boolean}         true se não existe nenhum com o nome ainda
+	 */
+	isNameUnique(product){
+		return !this.state.products.filter(p => p.name.toLowerCase() == product.name.toLowerCase() && p.id != product.id).length;
+	}
+
+	getNextProductId(){
+		return (this.state.products.map(p => p.id).reduce((prev, current) => (prev > current) ? prev : current)) + 1;
+	}
+
+	getEmptyProduct(){
+		return ({
+			id: this.getNextProductId(),
+			category: "Default",
+			price: "",
+			quantity: "",
+			name: ""
+		})
 	}
 
 	handleBuy(itemId){
+		/*
+		Não sei por que funciona...
+		achei que precisaria retornar um objeto com o field que
+		quero atualizar, mas estou retornando um array e ta tudo blz,
+		os outros fields de state não são perdidos, para minha surpresa.
+		Espero entender o porquẽ um dia.
+		 */
 		this.setState(prevState => {
 			return prevState.products.map(p => {
 				if (p.id == itemId){
@@ -83,7 +161,7 @@ export default class App extends React.Component {
 
 		let products = this.state.products.filter(p => {
 			return	(
-				p.name.includes(this.state.filterSearch)
+				p.name.toLowerCase().includes(this.state.filterSearch.toLowerCase())
 				&& 
 				/*
 				NÃO FUNCIONA: (this.state.filterStockOnly && p.stocked === true || true)
@@ -99,21 +177,23 @@ export default class App extends React.Component {
 		let schemaArray = [
 			{header: "Name", "productField": "name"},
 			{header: "Price", "productField": "price"},
-			{header: "Price", "productField": "price"},
-			{header: "Price", "productField": "price"},
 			{header: "Quantity", "productField": "quantity"},
-			{header: "Buy", "productField": "buy"},
-			{header: "Buy", "productField": "buy"},
-			{header: "Buy", "productField": "buy"},
 			{header: "Buy", "productField": "buy"},
 		];
 
-		// let schemaAdminArray = [
-		// 	{header: "Id", "productField": "id"},
-		// 	{header: "Name", "productField": "name"},
-		// 	{header: "Price", "productField": "price"},
-		// 	{header: "Quantity", "productField": "quantity"}
-		// ];
+		let schemaAdminArray = [
+			{header: "Id", "productField": "id"},
+			{header: "Category", "productField": "category"},
+			{header: "Name", "productField": "name"},
+			{header: "Price", "productField": "price"},
+			{header: "Quantity", "productField": "quantity"}
+		];
+
+		let barStyle = {
+			backgroundColor: "#d9edf7",
+		    padding: "7px",
+		    textAlign: "center",
+		}
 
 		return (
 			<div className="container">
@@ -121,22 +201,33 @@ export default class App extends React.Component {
 				<br/>
 				<div className="row justify-content-md-center">
 					<div className="col-md-auto">
+						<h1 style={barStyle}>Simple Stock Control</h1>
 						<SearchBlock search={this.state.filterSearch}
 									 changeSearchFilter={this.changeSearchFilter}
 									 stockOnly={this.state.filterStockOnly}
 									 changeStockOnlyFilter={this.changeStockOnlyFilter} />
 						<br/>
 						<ProductTable
-									schemaArray={schemaArray}
+									scheme={schemaArray}
 									headers={headers}
 									products={products} 
 									handleBuy={this.handleBuy} />
 					</div>
 				</div>
+				<hr/>
 				<div className="row justify-content-md-center">
 					<Admin products={products}
-						   adminUpdateProduct={this.adminUpdateProduct}>
-
+						   adminUpdateProduct={this.adminUpdateProduct}
+						   barStyle={barStyle}>
+				   		   	<ProductTable
+				   		   		scheme={schemaAdminArray}
+					   			adminChangeProductValue={this.adminChangeProductValue}
+								headers={adminHeaders}
+								products={products} 
+								handleBuy={this.handleBuy} 
+								/* Admin */
+					   			isAdmin={true}
+								addEmptyProduct={this.addEmptyProduct} />
 					</Admin>
 				</div>
 			</div>
