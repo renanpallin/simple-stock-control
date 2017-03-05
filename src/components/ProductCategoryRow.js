@@ -8,7 +8,7 @@ export default class ProductCategoryRow extends React.Component {
 	render(){
 		return(
 			<tr>
-				<td colSpan="2" className="table-info">
+				<td colSpan={this.props.colSpan} className="table-info">
 					{this.props.category}
 				</td>
 			</tr>

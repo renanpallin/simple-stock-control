@@ -12,7 +12,6 @@ export default class SearchBlock extends React.Component {
 	}
 
 	handleChangeCheck(e){
-		console.log('check', e.target.checked);
 		this.props.changeStockOnlyFilter(e.target.checked);
 	}
 

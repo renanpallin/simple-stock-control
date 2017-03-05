@@ -9,13 +9,24 @@ export default class ProductTable extends React.Component {
 		super(props);
 	}
 
+	renderTHeads(titles){
+		return titles.map(title => <th key={title}>
+			<strong>{title}</strong>
+		</th>)
+	}
+
 	render(){
+		let tHeads = this.renderTHeads(this.props.headers);
+
 		let rows = [];
 		let lastCategory = "";
 
 		this.props.products.forEach(p => {
 			if(p.category != lastCategory){
-				rows.push(<ProductCategoryRow category={p.category} key={"category-" + p.category} />);
+				rows.push(<ProductCategoryRow 
+							category={p.category}
+							key={"category-" + p.category} 
+							colSpan={tHeads.length}/>);
 				lastCategory = p.category;
 			}
 
@@ -26,8 +37,7 @@ export default class ProductTable extends React.Component {
 			<table className="table table-sm">
 				<thead>
 					<tr>
-						<th><strong>Name</strong></th>
-						<th><strong>Price</strong></th>
+						{tHeads}
 					</tr>
 				</thead>
 				<tbody>

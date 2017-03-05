@@ -14,13 +14,20 @@ export default class App extends React.Component {
 
 		this.state = {
 			products: [
-			  {category: "Sporting Goods", price: "$49.99", stocked: true, name: "Football"},
-			  {category: "Sporting Goods", price: "$9.99", stocked: true, name: "Baseball"},
-			  {category: "Sporting Goods", price: "$29.99", stocked: false, name: "Basketball"},
-			  {category: "Electronics", price: "$99.99", stocked: true, name: "iPod Touch"},
-			  {category: "Electronics", price: "$399.99", stocked: false, name: "iPhone 5"},
-			  {category: "Electronics", price: "$199.99", stocked: true, name: "Nexus 7"}
-			],
+			  {category: "Sporting Goods", price: "$49.99", quantity: 4, name: "Football"},
+			  {category: "Sporting Goods", price: "$9.99", quantity: 2, name: "Baseball"},
+			  {category: "Sporting Goods", price: "$29.99", quantity: 9, name: "Basketball"},
+			  {category: "Electronics", price: "$99.99", quantity: 0, name: "iPod Touch"},
+			  {category: "Electronics", price: "$399.99", quantity: 5, name: "iPhone 5"},
+			  {category: "Electronics", price: "$199.99", quantity: 0, name: "Nexus 7"}
+			].sort((a, b) => {
+				if (a.category > b.category)
+					return 1;
+				else if (a.category < b.category)
+					return -1;
+				else
+					return 0;
+			}),
 			// products: new MockData().getData().sort((a, b) => {
 			// 	if (a.category > b.category)
 			// 		return 1;
@@ -39,7 +46,7 @@ export default class App extends React.Component {
 	}
 
 	changeStockOnlyFilter(filterStockOnly){
-		this.setState({filterStockOnly}, x => console.log(this.state));
+		this.setState({filterStockOnly});
 	}
 
 	render() {
@@ -53,7 +60,7 @@ export default class App extends React.Component {
 				caso ele dê falso (deveríamos retornar false), ele cai no ||, enviando 
 				true de qualquer maneira. Tem que ser operador ternário aqui mesmo
 				 */
-				(this.state.filterStockOnly ? p.stocked === true : true)
+				(this.state.filterStockOnly ? p.quantity > 0 : true)
 			)
 		});
 
@@ -68,7 +75,8 @@ export default class App extends React.Component {
 									 stockOnly={this.state.filterStockOnly}
 									 changeStockOnlyFilter={this.changeStockOnlyFilter} />
 						<br/>
-						<ProductTable products={products} />
+						<ProductTable headers={["Name", "Price", "Qnt"]}
+									products={products} />
 					</div>
 				</div>
 			</div>
