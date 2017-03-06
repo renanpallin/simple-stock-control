@@ -29,6 +29,10 @@ export default class ProductDAO {
 		}, callback)
 	}
 
+	/*
+	BUG: lastValidValue está sendo salvo na base eventualmente, o que não é bom...
+	Não é nada perigoso, mas não é legal. Usando um Model com sanitize resolve o problema
+	 */
 	updateProduct(product, callback){
 		// console.log(product);
 		// console.log('url', this.URL_REST_PRODUCTS + product.id);

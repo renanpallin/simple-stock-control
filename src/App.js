@@ -9,8 +9,11 @@ import ProductDAO from './ProductDAO';
 
 
 /**
- * TODO: Tentar trocar os vários sorts pelo componentWillUpdate,
- * sort aí e já eraa
+ * Tentar trocar os vários sorts pelo componentWillUpdate,
+ * sort aí e já eraa. EDIT: Não funciona, pois vira um recursivo
+ *
+ * TODO: Dar um fetch na base verificando um timestamp para atualizar
+ * os dados na tela
  */
 export default class App extends React.Component {
 	constructor(props){
@@ -86,7 +89,7 @@ export default class App extends React.Component {
 	/*
 		Problemas com debounce, como cancelo a requisição pendnete anterior,
 		o callback vai embora junto e nunca é chamado, então o input continua amarelinho.
-		Solução: Esta classe agora possui um pendentCallbacks, onde são registrados todos
+		SOLUÇÃO: Esta classe agora possui um pendentCallbacks, onde são registrados todos
 		os callbacks para 
 	 */
 	updateProductInDatabase(product, callback) {

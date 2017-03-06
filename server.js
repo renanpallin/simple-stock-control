@@ -32,7 +32,7 @@ app.get('/api/product', (req, res) => {
 	db.collection(TABLE_NAME).find({}, {_id: false}, (err, cursor) => {
 		if (err) res.send(err);
 
-		cursor.toArray().then(arr =>{console.log(arr); res.send(arr)});
+		cursor.toArray().then(arr => res.send(arr));
 	})
 })
 

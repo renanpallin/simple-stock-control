@@ -19,6 +19,7 @@ MongoClient.connect("mongodb://localhost:27017/" + DATABASE_NAME, (err, db) => {
 	Promise.all([
 		db.collection(TABLE_NAME).drop(),
 		db.collection(TABLE_NAME).createIndex({id: 1}, {unique: true}),
+		db.collection(TABLE_NAME).createIndex({name: 1}, {unique: true}),
 		db.collection(TABLE_NAME)
 			.insert(PRODUCTS_MOCK)
 	]).then(data => {
